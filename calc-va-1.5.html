@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TB Sales Analytics</title>
+    <style>
+        /* --- CSS GLOBAL & RESET --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        /* --- HEADER --- */
+        .app-header {
+            background: #0056b3;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .app-header h1 { margin: 0; font-size: 1.2em; font-weight: 700; }
+
+        .back-btn {
+            position: absolute;
+            left: 15px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: white;
+            font-size: 1.5em; cursor: pointer; padding: 5px;
+        }
+
+        /* --- CONTENT --- */
+        .content { padding: 20px; padding-bottom: 80px; }
+
+        /* --- PAGE LOGIC --- */
+        .page { display: none; animation: fadeIn 0.3s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- LANDING PAGE MENU --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+        .menu-card {
+            background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 25px;
+            text-align: left; cursor: pointer; transition: all 0.2s; display: flex;
+            align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .menu-card:active { transform: scale(0.98); background-color: #f8f9fa; }
+        .menu-icon {
+            font-size: 1.5em; margin-right: 15px; background: #e3f2fd; color: #0056b3;
+            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+        }
+        .menu-text h3 { margin: 0; font-size: 1.1em; color: #333; }
+        .menu-text p { margin: 5px 0 0 0; font-size: 0.8em; color: #888; }
+        .arrow-icon { color: #ccc; }
+
+        /* --- FORM STYLES --- */
+        .section-title {
+            font-size: 0.95em; font-weight: 700; margin-top: 25px; margin-bottom: 12px;
+            color: #444; background-color: #eef3f7; padding: 10px 12px;
+            border-radius: 6px; border-left: 4px solid #0056b3;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9em; color: #555; }
+        
+        input[type="number"], input[type="text"] {
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
+            box-sizing: border-box; font-size: 16px; background-color: #fff;
+        }
+        input:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 0 2px rgba(0,86,179,0.1); }
+        input[readonly] { background-color: #f8f9fa; color: #666; border: 1px dashed #ccc; }
+        .input-note { font-size: 0.75em; color: #888; margin-top: 4px; }
+
+        .btn-calc {
+            display: block; width: 100%; padding: 16px; background-color: #0056b3; color: white;
+            border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold;
+            cursor: pointer; margin-top: 30px; box-shadow: 0 4px 6px rgba(0,86,179,0.2);
+        }
+        .btn-calc:active { background-color: #004494; transform: translateY(2px); }
+
+        /* --- RESULT BOX --- */
+        .result-box {
+            background: linear-gradient(135deg, #0d47a1, #1976d2); color: white;
+            padding: 25px; border-radius: 12px; margin-top: 30px; text-align: center;
+            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
+        }
+        .result-title { font-size: 1em; opacity: 0.9; margin-bottom: 5px; }
+        .result-value { font-size: 1.8em; font-weight: 800; margin: 10px 0; word-wrap: break-word; }
+
+        /* --- MAINTENANCE --- */
+        .maintenance-box { text-align: center; padding-top: 50px; color: #666; }
+        .maintenance-icon { font-size: 4em; margin-bottom: 20px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="page-landing" class="page active">
+        <div class="app-header">
+            <h1>TB Sales Analytics Tool</h1>
+        </div>
+        <div class="content">
+            <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">Selamat datang. Silakan pilih tools kalkulasi:</p>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="goToPage('page-va')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="menu-icon">🔢</div>
+                        <div class="menu-text"><h3>VA Calculator</h3><p>Pricing & Potential Loss</p></div>
+                    </div>
+                    <div class="arrow-icon">➔</div>
+                </div>
+                <div class="menu-card" onclick="goToPage('page-maintenance', 'Trade Calculator')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="menu-icon">⚓</div>
+                        <div class="menu-text"><h3>Trade Calculator</h3><p>LC & SKBDN Pricing</p></div>
+                    </div>
+                    <div class="arrow-icon">➔</div>
+                </div>
+                <div class="menu-card" onclick="goToPage('page-maintenance', 'BG Calculator')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="menu-icon">📜</div>
+                        <div class="menu-text"><h3>BG Calculator</h3><p>Bank Guarantee Pricing</p></div>
+                    </div>
+                    <div class="arrow-icon">➔</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-va" class="page">
+        <div class="app-header">
+            <button class="back-btn" onclick="goToPage('page-landing')">❮</button>
+            <h1>VA Calculator</h1>
+        </div>
+        <div class="content">
+            <div class="section-title">1. Rate & Spread</div>
+            <div class="form-group">
+                <label>Rate Giro (%)</label>
+                <input type="number" id="rateGiro" placeholder="ex: 1.5" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Rate FTP (%)</label>
+                <input type="number" id="rateFTP" placeholder="ex: 5.5" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Spread Net FTP - Giro (%)</label>
+                <input type="text" id="spreadFTP" readonly value="0%">
+                <div class="input-note">Rumus: FTP - (Giro + 0.082% + 0.2%)</div>
+            </div>
+
+            <div class="section-title">2. Data Transaksi</div>
+            <div class="form-group">
+                <label>Estimasi Frekuensi (Per Bulan)</label>
+                <input type="number" id="freqTrx" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Default Fee Trx (IDR)</label>
+                <!-- Using text + oninput for comma formatting -->
+                <input type="text" inputmode="numeric" id="defaultFee" value="2,500" oninput="formatInput(this)">
+            </div>
+            <div class="form-group">
+                <label>Fee Diajukan (IDR)</label>
+                <input type="text" inputmode="numeric" id="negoFee" placeholder="ex: 1,000" oninput="formatInput(this)">
+            </div>
+
+            <div class="section-title">3. Biaya Tambahan (Jika Ada)</div>
+            <div class="form-group">
+                <label>Potential Loss Biaya Dev (One Time)</label>
+                <input type="text" inputmode="numeric" id="devCost" value="0" oninput="formatInput(this)">
+            </div>
+            <div class="form-group">
+                <label>Leased Line Fee (Per Bulan)</label>
+                <input type="text" inputmode="numeric" id="leasedLineMonth" value="0" placeholder="ex: 5,000,000" oninput="formatInput(this)">
+                <div class="input-note">Otomatis dikalikan 12 bulan</div>
+            </div>
+
+            <button class="btn-calc" onclick="hitungVA()">HITUNG HASIL</button>
+
+            <div class="result-box">
+                <div class="result-title">Minimal Additional Balance:</div>
+                <div class="result-value" id="finalResult">Rp 0</div>
+                <div style="font-size: 0.8em; opacity: 0.8;">Dana yang harus diendapkan (Harian)</div>
+            </div>
+
+            <div class="section-title">4. Rincian Loss (Per Tahun)</div>
+            <div class="form-group">
+                <label>Income Default vs Nego</label>
+                <input type="text" id="incomeCompare" readonly style="font-size: 0.9em;">
+            </div>
+            <div class="form-group">
+                <label>Potential Loss Fee Trx</label>
+                <input type="text" id="lossFee" readonly>
+            </div>
+            <div class="form-group">
+                <label>Potential Loss Leased Line (12 Bln)</label>
+                <input type="text" id="lossLeasedLine" readonly>
+            </div>
+            <div class="form-group">
+                <label>Total Potential Loss</label>
+                <input type="text" id="totalLoss" readonly style="color: #d32f2f; font-weight: bold;">
+            </div>
+        </div>
+    </div>
+
+    <div id="page-maintenance" class="page">
+        <div class="app-header">
+            <button class="back-btn" onclick="goToPage('page-landing')">❮</button>
+            <h1 id="maint-title">Feature</h1>
+        </div>
+        <div class="content">
+            <div class="maintenance-box">
+                <span class="maintenance-icon">🚧</span>
+                <h3>Fitur Sedang Dikembangkan</h3>
+                <p>Modul ini belum tersedia saat ini. Silakan kembali lagi nanti.</p>
+                <br>
+                <button class="btn-calc" style="background-color: #999;" onclick="goToPage('page-landing')">Kembali ke Menu</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- NAVIGASI ---
+    function goToPage(pageId, title = "") {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+        if(pageId === 'page-maintenance' && title !== "") {
+            document.getElementById('maint-title').innerText = title;
+        }
+        window.scrollTo(0, 0);
+    }
+
+    // --- HELPER FORMATTING ---
+    const formatIDR = (number) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+    }
+    const formatPercent = (number) => {
+        return number.toFixed(3) + "%"; // 3 desimal sesuai request baru
+    }
+
+    // Fungsi format input saat mengetik (1000 -> 1,000)
+    function formatInput(input) {
+        let val = input.value.replace(/\D/g, '');
+        if (val !== "") {
+            input.value = parseInt(val, 10).toLocaleString('en-US'); 
+        } else {
+            input.value = "";
+        }
+    }
+
+    // Helper ambil angka murni dari input string
+    function getCleanNumber(elementId) {
+        let val = document.getElementById(elementId).value;
+        if (!val) return 0;
+        return parseFloat(val.replace(/,/g, '')) || 0;
+    }
+
+    // --- LOGIC PERHITUNGAN VA BARU ---
+    function hitungVA() {
+        // 1. Ambil Input (Gunakan getCleanNumber untuk field IDR/Angka)
+        let rateGiro = parseFloat(document.getElementById('rateGiro').value) || 0;
+        let rateFTP = parseFloat(document.getElementById('rateFTP').value) || 0;
+        
+        let freqMonth = parseFloat(document.getElementById('freqTrx').value) || 0;
+        
+        let defaultFee = getCleanNumber('defaultFee');
+        let negoFee = getCleanNumber('negoFee');
+        let devCost = getCleanNumber('devCost');
+        let leasedLineMonth = getCleanNumber('leasedLineMonth');
+
+        // 2. Logic Spread (Point 3)
+        // Spread = Rate FTP - (Rate Giro + 0.082 + 0.2)
+        let overheadCost = 0.082 + 0.2; // 0.282%
+        let spreadVal = rateFTP - (rateGiro + overheadCost);
+        document.getElementById('spreadFTP').value = formatPercent(spreadVal);
+
+        // 3. Logic Frekuensi & Income
+        let freqYear = freqMonth * 12; // Point 5
+        let incomeDefault = freqYear * defaultFee; // Point 8
+        let incomeNego = freqYear * negoFee; // Point 9
+        
+        // Tampilkan perbandingan income kecil (Optional visual helper)
+        document.getElementById('incomeCompare').value = formatIDR(incomeDefault) + " vs " + formatIDR(incomeNego);
+
+        // 4. Logic Loss Components
+        let lossFee = incomeDefault - incomeNego; // Point 10
+        let lossLeasedLine = leasedLineMonth * 12; // Point 12
+        
+        document.getElementById('lossFee').value = formatIDR(lossFee);
+        document.getElementById('lossLeasedLine').value = formatIDR(lossLeasedLine);
+
+        // 5. Total Loss (Point 13)
+        let totalLoss = lossFee + devCost + lossLeasedLine;
+        document.getElementById('totalLoss').value = formatIDR(totalLoss);
+
+        // 6. Minimal Additional Balance (Point 14)
+        // Rumus: Total Loss / Spread
+        let additionalBalance = 0;
+        if (spreadVal > 0) {
+            additionalBalance = totalLoss / (spreadVal / 100);
+        } else {
+            // Jika spread negatif, tidak mungkin cover loss
+            additionalBalance = 0; 
+        }
+
+        document.getElementById('finalResult').innerText = formatIDR(additionalBalance);
+    }
+</script>
+
+</body>
+</html>
