@@ -24,25 +24,47 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
 
-        /* --- HEADER --- */
+        /* --- HEADER (UPDATED SIZE) --- */
         .app-header {
             background: #0056b3;
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 0 20px;
+            height: 80px;    /* Diperbesar menjadi 80px */
+            
+            /* Flexbox untuk centering sempurna */
+            display: flex;
+            align-items: center;     
+            justify-content: center; 
+            
             position: sticky;
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
 
-        .app-header h1 { margin: 0; font-size: 1.2em; font-weight: 700; }
+        .app-header h1 { 
+            margin: 0; 
+            font-size: 1.2em; 
+            font-weight: 700; 
+        }
+
+        /* Style khusus untuk Logo (UPDATED SIZE) */
+        .logo-img {
+            height: 60px;       /* Diperbesar menjadi 60px */
+            width: auto;        
+            object-fit: contain; 
+            display: block;
+        }
 
         .back-btn {
             position: absolute;
-            left: 15px; top: 50%; transform: translateY(-50%);
+            left: 15px; 
+            top: 50%; 
+            transform: translateY(-50%);
             background: none; border: none; color: white;
             font-size: 1.5em; cursor: pointer; padding: 5px;
+            line-height: 1; 
         }
 
         /* --- CONTENT --- */
@@ -113,7 +135,8 @@
     
     <div id="page-landing" class="page active">
         <div class="app-header">
-            <h1>TB Sales Analytics Tool</h1>
+            <!-- LOGO (FINAL LINK) -->
+            <img src="https://i.ibb.co.com/dJMqF9pH/OJT-TBW.png" alt="OJT TBW Logo" class="logo-img">
         </div>
         <div class="content">
             <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">Selamat datang. Silakan pilih tools kalkulasi:</p>
