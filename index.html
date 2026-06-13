@@ -6,6 +6,13 @@
     <title>TB Sales Analytics</title>
     <style>
         /* --- CSS GLOBAL & RESET --- */
+        :root {
+            --tc-primary: #0056b3;
+            --tc-secondary: #f8f9fa;
+            --tc-text: #333;
+            --tc-border: #ccc;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f2f5;
@@ -91,7 +98,7 @@
         .menu-text p { margin: 5px 0 0 0; font-size: 0.8em; color: #888; }
         .arrow-icon { color: #ccc; }
 
-        /* --- FORM STYLES --- */
+        /* --- FORM STYLES (VA CALCULATOR) --- */
         .section-title {
             font-size: 0.95em; font-weight: 700; margin-top: 25px; margin-bottom: 12px;
             color: #444; background-color: #eef3f7; padding: 10px 12px;
@@ -115,7 +122,6 @@
         }
         .btn-calc:active { background-color: #004494; transform: translateY(2px); }
 
-        /* --- RESULT BOX --- */
         .result-box {
             background: linear-gradient(135deg, #0d47a1, #1976d2); color: white;
             padding: 25px; border-radius: 12px; margin-top: 30px; text-align: center;
@@ -123,6 +129,40 @@
         }
         .result-title { font-size: 1em; opacity: 0.9; margin-bottom: 5px; }
         .result-value { font-size: 1.8em; font-weight: 800; margin: 10px 0; word-wrap: break-word; }
+
+        /* --- STYLES FOR TRADE CYCLE PAGE --- */
+        #page-trade-cycle h2 { text-align: center; color: var(--tc-text); font-size: 1.4rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .tc-section { background: var(--tc-secondary); border: 1px solid var(--tc-border); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .tc-section-title { font-weight: bold; margin-bottom: 10px; color: var(--tc-primary); display: flex; justify-content: space-between; align-items: center; }
+        .tc-note { font-size: 0.8rem; color: #666; margin-bottom: 15px; display: block; }
+        
+        .tc-input-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        #page-trade-cycle input:disabled { background-color: #e9ecef; color: #666; font-weight: bold; }
+        
+        .tc-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .tc-col { flex: 1; }
+        
+        .tc-btn-add { background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+        .tc-btn-add:hover { background: #218838; }
+        .tc-btn-remove { background: #dc3545; color: white; border: none; padding: 12px 15px; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold; height: 100%; }
+        .tc-btn-remove:hover { background: #c82333; }
+
+        .chart-container { width: 100%; overflow-x: auto; background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 10px 0; margin-bottom: 20px; }
+        
+        /* Dashboard Metrics */
+        .metrics-container { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .metric-card { flex: 1; min-width: 80px; background: #fff; border: 1px solid var(--tc-primary); border-radius: 8px; padding: 12px 5px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .metric-card.highlight { background: var(--tc-primary); color: #fff; border: none; }
+        .metric-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; opacity: 0.9; }
+        .metric-value { font-size: 1.4rem; font-weight: bold; }
+        .metric-unit { font-size: 0.8rem; font-weight: normal; }
+
+        .tc-result-box { background: #d4edda; border-left: 5px solid #28a745; padding: 15px; border-radius: 5px; display: none; color: #333; }
+        .tc-result-box.deficit { background: #f8d7da; border-left: 5px solid #dc3545; }
+        .tc-result-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        .tc-solution-list { margin: 0; padding-left: 20px; font-size: 0.95rem; line-height: 1.5; }
+        .tc-solution-list li { margin-bottom: 8px; }
 
         /* --- MAINTENANCE --- */
         .maintenance-box { text-align: center; padding-top: 50px; color: #666; }
@@ -148,6 +188,16 @@
                     </div>
                     <div class="arrow-icon">➔</div>
                 </div>
+                
+                <!-- NEW TRADE CYCLE BUTTON -->
+                <div class="menu-card" onclick="goToPage('page-trade-cycle')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="menu-icon">🔄</div>
+                        <div class="menu-text"><h3>Trade Cycle</h3><p>Sales Workbook Calculator</p></div>
+                    </div>
+                    <div class="arrow-icon">➔</div>
+                </div>
+
                 <div class="menu-card" onclick="goToPage('page-maintenance', 'Trade Calculator')">
                     <div style="display:flex; align-items:center;">
                         <div class="menu-icon">⚓</div>
@@ -155,6 +205,7 @@
                     </div>
                     <div class="arrow-icon">➔</div>
                 </div>
+                
                 <div class="menu-card" onclick="goToPage('page-maintenance', 'BG Calculator')">
                     <div style="display:flex; align-items:center;">
                         <div class="menu-icon">📜</div>
@@ -166,6 +217,7 @@
         </div>
     </div>
 
+    <!-- PAGE: VA CALCULATOR -->
     <div id="page-va" class="page">
         <div class="app-header">
             <button class="back-btn" onclick="goToPage('page-landing')">❮</button>
@@ -190,7 +242,6 @@
             <div class="section-title">2. Data Transaksi</div>
             <div class="form-group">
                 <label>Estimasi Frekuensi (Per Bulan)</label>
-                <!-- Using text + oninput for comma formatting -->
                 <input type="text" inputmode="numeric" id="freqTrx" placeholder="0" oninput="formatInput(this)">
             </div>
             <div class="form-group">
@@ -221,10 +272,8 @@
                 <div class="result-value" id="finalResult">Rp 0</div>
                 <div style="font-size: 0.8em; opacity: 0.8; margin-bottom: 15px;">Dana yang harus diendapkan (Harian)</div>
                 
-                <!-- Divider -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.3); margin: 15px 0;"></div>
                 
-                <!-- Sales Advisory -->
                 <div class="result-title" style="color: #ffeb3b; font-weight: bold;">💡 Sales Advisory:</div>
                 <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.9;">Saran Open Negosiasi (3x Min. Balance):</div>
                 <div class="result-value" id="advisoryResult" style="font-size: 1.4em;">Rp 0</div>
@@ -250,6 +299,100 @@
             <div class="form-group">
                 <label>Total Potential Loss</label>
                 <input type="text" id="totalLoss" readonly style="color: #d32f2f; font-weight: bold;">
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: TRADE CYCLE -->
+    <div id="page-trade-cycle" class="page">
+        <div class="app-header">
+            <button class="back-btn" onclick="goToPage('page-landing')">❮</button>
+            <h1>Trade Cycle</h1>
+        </div>
+        <div class="content">
+            <h2>Sales Workbook</h2>
+
+            <div class="chart-container" id="svgContainer"></div>
+        
+            <div class="metrics-container" id="metricsDashboard">
+                <div class="metric-card">
+                    <div class="metric-title">DIO (Barang)</div>
+                    <div class="metric-value" id="valDIO">0 <span class="metric-unit">hari</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">DSO (Piutang)</div>
+                    <div class="metric-value" id="valDSO">0 <span class="metric-unit">hari</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">DPO (Utang)</div>
+                    <div class="metric-value" id="valDPO">0 <span class="metric-unit">hari</span></div>
+                </div>
+                <div class="metric-card highlight">
+                    <div class="metric-title">Siklus Kas (CCC)</div>
+                    <div class="metric-value" id="valCCC">0 <span class="metric-unit">hari</span></div>
+                </div>
+            </div>
+        
+            <div class="tc-section">
+                <div class="tc-section-title">Parameter Trade Cycle (H0 = PO Issued)</div>
+                <span class="tc-note">Masukkan hari absolut sejak PO diterbitkan.</span>
+                
+                <div class="tc-input-group">
+                    <label>PO / LC Issued (H0)</label>
+                    <input type="number" id="poDay" value="0" disabled>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-col">
+                        <label>Goods Delivery (GD)</label>
+                        <input type="number" id="gdDay" value="15" oninput="updateChart()">
+                    </div>
+                    <div class="tc-col">
+                        <label>Goods Received (GR)</label>
+                        <input type="number" id="grDay" value="20" oninput="updateChart()">
+                    </div>
+                    <div class="tc-col">
+                        <label>Point of Sales (POS)</label>
+                        <input type="number" id="posDay" value="50" oninput="updateChart()">
+                    </div>
+                </div>
+            </div>
+        
+            <div class="tc-section">
+                <div class="tc-section-title">
+                    <span>Cash Outflow (CO)</span>
+                    <button class="tc-btn-add" onclick="addCO()">+ Tambah CO</button>
+                </div>
+                <p class="tc-note">Hari ke-N Nasabah membayar Supplier (absolut dari H0).</p>
+                <div id="coContainer">
+                    <div class="tc-row co-row">
+                        <div class="tc-col"><input type="text" class="co-name" placeholder="Supplier" value="Supplier A"></div>
+                        <div class="tc-col"><input type="number" class="co-day" placeholder="Hari ke-N" value="65" oninput="updateChart()"></div>
+                        <button class="tc-btn-remove" onclick="removeRow(this)">X</button>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="tc-section">
+                <div class="tc-section-title">
+                    <span>Cash Inflow (CI)</span>
+                    <button class="tc-btn-add" onclick="addCI()">+ Tambah CI</button>
+                </div>
+                <p class="tc-note">Hari ke-N Nasabah menerima dana dari Buyer (absolut dari H0).</p>
+                <div id="ciContainer">
+                    <div class="tc-row ci-row">
+                        <div class="tc-col"><input type="text" class="ci-name" placeholder="Buyer" value="Retail (Tunai)"></div>
+                        <div class="tc-col"><input type="number" class="ci-day" placeholder="Hari ke-N" value="50" oninput="updateChart()"></div>
+                        <button class="tc-btn-remove" onclick="removeRow(this)">X</button>
+                    </div>
+                </div>
+            </div>
+        
+            <div id="tcResultBox" class="tc-result-box" style="display: block;">
+                <div class="tc-result-title" id="tcResultTitle">Struktur Solusi Modal Kerja</div>
+                <div id="tcResultText"></div>
+                <br>
+                <div class="tc-result-title">Rekomendasi Produk:</div>
+                <ul class="tc-solution-list" id="tcSolutionList"></ul>
             </div>
         </div>
     </div>
@@ -282,18 +425,23 @@
         if(pageId === 'page-maintenance' && title !== "") {
             document.getElementById('maint-title').innerText = title;
         }
+        
+        // Memastikan update chart berjalan kalau halaman Trade Cycle dibuka
+        if(pageId === 'page-trade-cycle') {
+            updateChart();
+        }
+        
         window.scrollTo(0, 0);
     }
 
-    // --- HELPER FORMATTING ---
+    // --- HELPER FORMATTING (VA Calculator) ---
     const formatIDR = (number) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
     }
     const formatPercent = (number) => {
-        return number.toFixed(3) + "%"; // 3 desimal sesuai request baru
+        return number.toFixed(3) + "%"; 
     }
 
-    // Fungsi format input saat mengetik (1000 -> 1,000)
     function formatInput(input) {
         let val = input.value.replace(/\D/g, '');
         if (val !== "") {
@@ -303,7 +451,6 @@
         }
     }
 
-    // Helper ambil angka murni dari input string
     function getCleanNumber(elementId) {
         let val = document.getElementById(elementId).value;
         if (!val) return 0;
@@ -312,44 +459,34 @@
 
     // --- LOGIC PERHITUNGAN VA BARU ---
     function hitungVA() {
-        // 1. Ambil Input (Gunakan getCleanNumber untuk field IDR/Angka)
         let rateGiro = parseFloat(document.getElementById('rateGiro').value) || 0;
         let rateFTP = parseFloat(document.getElementById('rateFTP').value) || 0;
-        
         let freqMonth = getCleanNumber('freqTrx');
-        
         let defaultFee = getCleanNumber('defaultFee');
         let negoFee = getCleanNumber('negoFee');
         let devCost = getCleanNumber('devCost');
         let leasedLineMonth = getCleanNumber('leasedLineMonth');
 
-        // 2. Logic Spread (Point 3)
-        // Spread = Rate FTP - (Rate Giro + 0.082 + 0.2)
-        let overheadCost = 0.082 + 0.2; // 0.282%
+        let overheadCost = 0.082 + 0.2; 
         let spreadVal = rateFTP - (rateGiro + overheadCost);
         document.getElementById('spreadFTP').value = formatPercent(spreadVal);
 
-        // 3. Logic Frekuensi & Income
-        let freqYear = freqMonth * 12; // Point 5
-        let incomeDefault = freqYear * defaultFee; // Point 8
-        let incomeNego = freqYear * negoFee; // Point 9
+        let freqYear = freqMonth * 12; 
+        let incomeDefault = freqYear * defaultFee; 
+        let incomeNego = freqYear * negoFee; 
         
-        // Tampilkan perbandingan income kecil (Optional visual helper)
         document.getElementById('incomeCompare').value = formatIDR(incomeDefault) + " vs " + formatIDR(incomeNego);
 
-        // 4. Logic Loss Components
-        let lossFee = incomeDefault - incomeNego; // Point 10
-        let lossLeasedLine = leasedLineMonth * 12; // Point 12
+        let lossFee = incomeDefault - incomeNego; 
+        let lossLeasedLine = leasedLineMonth * 12; 
         
         document.getElementById('lossFee').value = formatIDR(lossFee);
         document.getElementById('lossLeasedLine').value = formatIDR(lossLeasedLine);
         document.getElementById('lossDevCost').value = formatIDR(devCost);
 
-        // 5. Total Loss (Point 13)
         let totalLoss = lossFee + devCost + lossLeasedLine;
         document.getElementById('totalLoss').value = formatIDR(totalLoss);
 
-        // 6. Minimal Additional Balance (Point 14)
         let additionalBalance = 0;
         if (spreadVal > 0) {
             additionalBalance = totalLoss / (spreadVal / 100);
@@ -357,12 +494,172 @@
             additionalBalance = 0; 
         }
 
-        // 7. Calculate Sales Advisory (3x Multiplier)
         let recommendedBalance = additionalBalance * 3;
 
         document.getElementById('finalResult').innerText = formatIDR(additionalBalance);
         document.getElementById('advisoryResult').innerText = formatIDR(recommendedBalance);
     }
+
+    // --- LOGIC TRADE CYCLE CALCULATOR ---
+    function addCO() {
+        const div = document.createElement('div');
+        div.className = 'tc-row co-row';
+        div.innerHTML = `<div class="tc-col"><input type="text" class="co-name" placeholder="Supplier Baru"></div>
+                         <div class="tc-col"><input type="number" class="co-day" placeholder="Hari ke-N" value="0" oninput="updateChart()"></div>
+                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
+        document.getElementById('coContainer').appendChild(div);
+        updateChart();
+    }
+
+    function addCI() {
+        const div = document.createElement('div');
+        div.className = 'tc-row ci-row';
+        div.innerHTML = `<div class="tc-col"><input type="text" class="ci-name" placeholder="Buyer Baru"></div>
+                         <div class="tc-col"><input type="number" class="ci-day" placeholder="Hari ke-N" value="0" oninput="updateChart()"></div>
+                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
+        document.getElementById('ciContainer').appendChild(div);
+        updateChart();
+    }
+
+    function removeRow(buttonElement) {
+        buttonElement.parentElement.remove();
+        updateChart();
+    }
+
+    function generateArrowPolygon(xStart, xEnd, y, height) {
+        const arrowHeadWidth = 20;
+        const adjustedEnd = Math.max(xStart + arrowHeadWidth + 5, xEnd); 
+        return `${xStart},${y} 
+                ${adjustedEnd - arrowHeadWidth},${y} 
+                ${adjustedEnd},${y + height/2} 
+                ${adjustedEnd - arrowHeadWidth},${y + height} 
+                ${xStart},${y + height}`;
+    }
+
+    function updateChart() {
+        // Jika elemen Trade Cycle belum ada (saat inisialisasi awal misal), abort.
+        if(!document.getElementById('gdDay')) return;
+
+        // 1. Ambil Nilai Input
+        const gd = parseInt(document.getElementById('gdDay').value) || 0;
+        const gr = Math.max(gd, parseInt(document.getElementById('grDay').value) || 0);
+        const pos = Math.max(gr, parseInt(document.getElementById('posDay').value) || 0);
+
+        const coDays = Array.from(document.querySelectorAll('.co-day')).map(el => parseInt(el.value) || 0);
+        const ciDays = Array.from(document.querySelectorAll('.ci-day')).map(el => parseInt(el.value) || 0);
+        const coNames = Array.from(document.querySelectorAll('.co-name')).map(el => el.value);
+        const ciNames = Array.from(document.querySelectorAll('.ci-name')).map(el => el.value);
+
+        // 2. Kalkulasi Metrik CCC Berdasarkan Rata-rata
+        const avgCO = coDays.length > 0 ? (coDays.reduce((a, b) => a + b, 0) / coDays.length) : 0;
+        const avgCI = ciDays.length > 0 ? (ciDays.reduce((a, b) => a + b, 0) / ciDays.length) : 0;
+
+        const dio = Math.max(0, pos - gr);
+        const dpo = Math.max(0, avgCO - gr);
+        const dso = Math.max(0, avgCI - pos);
+        const ccc = dio + dso - dpo; // Siklus Konversi Kas
+
+        // Update UI Dashboard
+        document.getElementById('valDIO').innerHTML = `${Math.round(dio)} <span class="metric-unit">hari</span>`;
+        document.getElementById('valDSO').innerHTML = `${Math.round(dso)} <span class="metric-unit">hari</span>`;
+        document.getElementById('valDPO').innerHTML = `${Math.round(dpo)} <span class="metric-unit">hari</span>`;
+        document.getElementById('valCCC').innerHTML = `${Math.round(ccc)} <span class="metric-unit">hari</span>`;
+
+        // 3. Kalkulasi Dimensi SVG
+        let maxDay = Math.max(pos, ...coDays, ...ciDays, 30); 
+        const svgWidth = 800;
+        const startX = 120; 
+        const endX = svgWidth - 120; 
+        const usableWidth = endX - startX;
+        
+        const rowHeight = 40;
+        const baseTimelineY = 20; 
+        const coStartY = baseTimelineY + 80; 
+        const ciStartY = coStartY + (coDays.length * rowHeight) + 10;
+        const svgHeight = ciStartY + (ciDays.length * rowHeight) + 20;
+
+        function getX(day) { return startX + ((day / maxDay) * usableWidth); }
+
+        // 4. Bangun Elemen SVG
+        let svg = `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:auto; font-size:12px;">`;
+
+        const xPO = getX(0), xGR = getX(gr);
+        svg += `<polygon points="${generateArrowPolygon(xPO, xGR - 5, baseTimelineY, 30)}" fill="#f8cbad"/>`;
+        svg += `<text x="${xPO}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">PO/LC</text>`;
+        svg += `<text x="${xPO}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H0</text>`;
+        svg += `<line x1="${xPO}" y1="${baseTimelineY + 20}" x2="${xPO}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+        
+        const xGD = getX(gd);
+        svg += `<text x="${xGD}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">GD</text>`;
+        svg += `<text x="${xGD}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${gd}</text>`;
+        svg += `<line x1="${xGD}" y1="${baseTimelineY + 20}" x2="${xGD}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+
+        svg += `<text x="${xGR}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">GR</text>`;
+        svg += `<text x="${xGR}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${gr}</text>`;
+        svg += `<line x1="${xGR}" y1="${baseTimelineY + 20}" x2="${xGR}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+
+        const xPOS = getX(pos);
+        svg += `<polygon points="${generateArrowPolygon(xGR + 5, xPOS - 5, baseTimelineY, 30)}" fill="#feeb9d"/>`;
+        svg += `<text x="${xPOS}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">POS</text>`;
+        svg += `<text x="${xPOS}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${pos}</text>`;
+        svg += `<line x1="${xPOS}" y1="${baseTimelineY + 20}" x2="${xPOS}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+
+        svg += `<polygon points="${generateArrowPolygon(xPOS + 5, Math.min(xPOS + 100, endX + 30), baseTimelineY, 30)}" fill="#fed05b"/>`;
+
+        coDays.forEach((day, index) => {
+            let yPos = coStartY + (index * rowHeight), posX = getX(day);
+            svg += `<line x1="10" y1="${yPos}" x2="${svgWidth-10}" y2="${yPos}" stroke="#ccc" stroke-dasharray="4" stroke-width="1"/>`;
+            svg += `<rect x="10" y="${yPos - 15}" width="100" height="25" fill="#f0f0f0" rx="3"/>
+                    <text x="15" y="${yPos}" font-size="11px">CO${index+1} : ${coNames[index].substring(0,8)}</text>`;
+            svg += `<line x1="110" y1="${yPos}" x2="${posX}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>
+                    <circle cx="${posX}" cy="${yPos}" r="4" fill="#e57373"/>
+                    <text x="${posX}" y="${yPos - 8}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#e57373">H+${day}</text>`;
+        });
+
+        ciDays.forEach((day, index) => {
+            let yPos = ciStartY + (index * rowHeight), posX = getX(day);
+            svg += `<line x1="10" y1="${yPos}" x2="${svgWidth-10}" y2="${yPos}" stroke="#ccc" stroke-dasharray="4" stroke-width="1"/>`;
+            svg += `<rect x="${svgWidth - 110}" y="${yPos - 15}" width="100" height="25" fill="#e0e0e0" rx="3"/>
+                    <text x="${svgWidth - 105}" y="${yPos}" font-size="11px">CI${index+1} : ${ciNames[index].substring(0,8)}</text>`;
+            svg += `<line x1="${posX}" y1="${yPos}" x2="${svgWidth - 110}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>
+                    <circle cx="${posX}" cy="${yPos}" r="4" fill="#64b5f6"/>
+                    <text x="${posX}" y="${yPos - 8}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#1976d2">H+${day}</text>`;
+        });
+
+        svg += `</svg>`;
+        document.getElementById('svgContainer').innerHTML = svg;
+
+        // 5. Kesimpulan Berdasarkan CCC
+        const resultBox = document.getElementById('tcResultBox');
+        const resultText = document.getElementById('tcResultText');
+        const solutionList = document.getElementById('tcSolutionList');
+        solutionList.innerHTML = '';
+
+        if (ccc > 0) {
+            resultBox.className = 'tc-result-box deficit';
+            resultText.innerHTML = `<strong>Terjadi Gap Likuiditas (Defisit) selama ${Math.round(ccc)} hari.</strong><br>
+                                    Secara rata-rata, nasabah menutupi siklus modal kerja menggunakan dana sendiri atau pinjaman.`;
+            solutionList.innerHTML += `<li><strong>Post-Shipment Financing / Trust Receipt:</strong> Untuk menalangi tagihan supplier sambil menunggu kas masuk.</li>`;
+            solutionList.innerHTML += `<li><strong>Invoice Discounting:</strong> Opsi pencairan piutang buyer lebih awal jika termin CI terlalu panjang.</li>`;
+        } else if (ccc < 0) {
+            resultBox.className = 'tc-result-box';
+            resultText.innerHTML = `<strong>Siklus Kas Positif (Surplus) selama ${Math.abs(Math.round(ccc))} hari.</strong><br>
+                                    Secara rata-rata, nasabah menerima kas lebih cepat sebelum kewajiban bayar jatuh tempo.`;
+            solutionList.innerHTML += `<li><strong>Supply Chain Financing (Reverse Factoring):</strong> Tawarkan percepatan bayar kepada supplier untuk mengamankan rantai pasok.</li>`;
+            solutionList.innerHTML += `<li><strong>Virtual Account Payment:</strong> Solusi penagihan masif terintegrasi untuk mempercepat rekonsiliasi kas masuk.</li>`;
+            solutionList.innerHTML += `<li><strong>Liquidity Management:</strong> Penempatan surplus dana jangka pendek selama siklus kas mengendap.</li>`;
+        } else {
+            resultBox.className = 'tc-result-box';
+            resultText.innerHTML = `<strong>Siklus Kas Seimbang (0 Hari).</strong><br>
+                                    Waktu kas keluar rata-rata sama dengan waktu kas masuk.`;
+            solutionList.innerHTML += `<li><strong>Cash Management:</strong> Optimalisasi operasional untuk menjaga kestabilan likuiditas.</li>`;
+        }
+    }
+
+    // Inisialisasi chart saat pertama buka web
+    window.onload = function() {
+        updateChart();
+    };
 </script>
 
 </body>
