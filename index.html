@@ -11,6 +11,11 @@
             --tc-secondary: #f8f9fa;
             --tc-text: #333;
             --tc-border: #ccc;
+            /* Tambahan warna baru untuk chart Trade Cycle */
+            --peach: #f8cbad;
+            --light-orange: #ffe0b2;
+            --yellow: #feeb9d;
+            --gold: #fed05b;
         }
 
         body {
@@ -111,7 +116,7 @@
             width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
             box-sizing: border-box; font-size: 16px; background-color: #fff;
         }
-        input:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 0 2px rgba(0,86,179,0.1); }
+        input:focus, select:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 0 2px rgba(0,86,179,0.1); }
         input[readonly] { background-color: #f8f9fa; color: #666; border: 1px dashed #ccc; }
         .input-note { font-size: 0.75em; color: #888; margin-top: 4px; }
 
@@ -139,9 +144,12 @@
         
         .tc-input-group { display: flex; flex-direction: column; margin-bottom: 12px; }
         #page-trade-cycle input:disabled { background-color: #e9ecef; color: #666; font-weight: bold; }
+        #page-trade-cycle select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.95rem; background-color: #fff; }
         
-        .tc-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .tc-col { flex: 1; }
+        .tc-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .tc-col-name { flex: 2; }
+        .tc-col-method { flex: 1.5; }
+        .tc-col-day { flex: 1.2; }
         
         .tc-btn-add { background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
         .tc-btn-add:hover { background: #218838; }
@@ -158,11 +166,25 @@
         .metric-value { font-size: 1.4rem; font-weight: bold; }
         .metric-unit { font-size: 0.8rem; font-weight: normal; }
 
+        /* Hasil Trade Advisory */
         .tc-result-box { background: #d4edda; border-left: 5px solid #28a745; padding: 15px; border-radius: 5px; display: none; color: #333; }
         .tc-result-box.deficit { background: #f8d7da; border-left: 5px solid #dc3545; }
         .tc-result-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        
         .tc-solution-list { margin: 0; padding-left: 20px; font-size: 0.95rem; line-height: 1.5; }
-        .tc-solution-list li { margin-bottom: 8px; }
+        .tc-solution-list li { margin-bottom: 10px; }
+        
+        .advisory-badge { display: inline-block; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; margin-bottom: 5px; font-weight: bold; }
+        .badge-co { background: #e57373; }
+        .badge-ci { background: #64b5f6; }
+        .badge-ok { background: #28a745; }
+        .badge-skip { background: #6c757d; }
+
+        /* Tombol Insert Grafik */
+        .tc-btn-insert { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold; margin-left: 5px; transition: 0.2s;}
+        .tc-btn-insert:hover { background: #138496; }
+        .tc-btn-insert.active { background: #dc3545; }
+        .tc-btn-insert.active:hover { background: #c82333; }
 
         /* --- MAINTENANCE --- */
         .maintenance-box { text-align: center; padding-top: 50px; color: #666; }
@@ -175,7 +197,6 @@
     
     <div id="page-landing" class="page active">
         <div class="app-header">
-            <!-- LOGO (FINAL LINK) -->
             <img src="https://i.ibb.co.com/dJMqF9pH/OJT-TBW.png" alt="OJT TBW Logo" class="logo-img">
         </div>
         <div class="content">
@@ -189,11 +210,10 @@
                     <div class="arrow-icon">➔</div>
                 </div>
                 
-                <!-- NEW TRADE CYCLE BUTTON -->
                 <div class="menu-card" onclick="goToPage('page-trade-cycle')">
                     <div style="display:flex; align-items:center;">
                         <div class="menu-icon">🔄</div>
-                        <div class="menu-text"><h3>Trade Cycle</h3><p>Sales Workbook Calculator</p></div>
+                        <div class="menu-text"><h3>Trade Cycle</h3><p>Trade Advisory Dashboard</p></div>
                     </div>
                     <div class="arrow-icon">➔</div>
                 </div>
@@ -310,7 +330,7 @@
             <h1>Trade Cycle</h1>
         </div>
         <div class="content">
-            <h2>Sales Workbook</h2>
+            <h2>Sales Workbook & Trade Advisory</h2>
 
             <div class="chart-container" id="svgContainer"></div>
         
@@ -334,39 +354,47 @@
             </div>
         
             <div class="tc-section">
-                <div class="tc-section-title">Parameter Trade Cycle (H0 = PO Issued)</div>
-                <span class="tc-note">Masukkan hari absolut sejak PO diterbitkan.</span>
-                
-                <div class="tc-input-group">
-                    <label>PO / LC Issued (H0)</label>
-                    <input type="number" id="poDay" value="0" disabled>
-                </div>
+                <div class="tc-section-title">1. Parameter Trade Cycle (H0 = PO)</div>
                 <div class="tc-row">
-                    <div class="tc-col">
+                    <div class="tc-col-name">
+                        <label>PO Issued (H0)</label>
+                        <input type="number" id="poDay" value="0" disabled>
+                    </div>
+                    <div class="tc-col-name">
                         <label>Goods Delivery (GD)</label>
-                        <input type="number" id="gdDay" value="15" oninput="updateChart()">
+                        <input type="number" id="gdDay" value="30" oninput="updateChart()">
                     </div>
-                    <div class="tc-col">
+                    <div class="tc-col-name">
                         <label>Goods Received (GR)</label>
-                        <input type="number" id="grDay" value="20" oninput="updateChart()">
+                        <input type="number" id="grDay" value="45" oninput="updateChart()">
                     </div>
-                    <div class="tc-col">
+                    <div class="tc-col-name">
                         <label>Point of Sales (POS)</label>
-                        <input type="number" id="posDay" value="50" oninput="updateChart()">
+                        <input type="number" id="posDay" value="75" oninput="updateChart()">
                     </div>
                 </div>
             </div>
         
             <div class="tc-section">
                 <div class="tc-section-title">
-                    <span>Cash Outflow (CO)</span>
+                    <span>2. Cash Outflow (Bayar Supplier)</span>
                     <button class="tc-btn-add" onclick="addCO()">+ Tambah CO</button>
                 </div>
-                <p class="tc-note">Hari ke-N Nasabah membayar Supplier (absolut dari H0).</p>
                 <div id="coContainer">
                     <div class="tc-row co-row">
-                        <div class="tc-col"><input type="text" class="co-name" placeholder="Supplier" value="Supplier A"></div>
-                        <div class="tc-col"><input type="number" class="co-day" placeholder="Hari ke-N" value="65" oninput="updateChart()"></div>
+                        <div class="tc-col-name"><input type="text" class="co-name" placeholder="Supplier" value="Supplier A"></div>
+                        <div class="tc-col-method">
+                            <select class="co-method" onchange="updateChart()">
+                                <option value="AP">AP</option>
+                                <option value="Cash">Cash</option>
+                                <option value="OA">OA</option>
+                                <option value="D/P">D/P</option>
+                                <option value="D/A">D/A</option>
+                                <option value="Sight LC" selected>Sight LC</option>
+                                <option value="Usance LC">Usance LC</option>
+                            </select>
+                        </div>
+                        <div class="tc-col-day"><input type="number" class="co-day" placeholder="H+N" value="45" oninput="updateChart()"></div>
                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>
                     </div>
                 </div>
@@ -374,24 +402,34 @@
         
             <div class="tc-section">
                 <div class="tc-section-title">
-                    <span>Cash Inflow (CI)</span>
+                    <span>3. Cash Inflow (Terima Buyer)</span>
                     <button class="tc-btn-add" onclick="addCI()">+ Tambah CI</button>
                 </div>
-                <p class="tc-note">Hari ke-N Nasabah menerima dana dari Buyer (absolut dari H0).</p>
                 <div id="ciContainer">
                     <div class="tc-row ci-row">
-                        <div class="tc-col"><input type="text" class="ci-name" placeholder="Buyer" value="Retail (Tunai)"></div>
-                        <div class="tc-col"><input type="number" class="ci-day" placeholder="Hari ke-N" value="50" oninput="updateChart()"></div>
+                        <div class="tc-col-name"><input type="text" class="ci-name" placeholder="Buyer" value="Distributor"></div>
+                        <div class="tc-col-method">
+                            <select class="ci-method" onchange="updateChart()">
+                                <option value="AP">AP</option>
+                                <option value="Cash">Cash</option>
+                                <option value="OA" selected>OA</option>
+                                <option value="D/P">D/P</option>
+                                <option value="D/A">D/A</option>
+                                <option value="Sight LC">Sight LC</option>
+                                <option value="Usance LC">Usance LC</option>
+                            </select>
+                        </div>
+                        <div class="tc-col-day"><input type="number" class="ci-day" placeholder="H+N" value="120" oninput="updateChart()"></div>
                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>
                     </div>
                 </div>
             </div>
         
             <div id="tcResultBox" class="tc-result-box" style="display: block;">
-                <div class="tc-result-title" id="tcResultTitle">Struktur Solusi Modal Kerja</div>
+                <div class="tc-result-title" id="tcResultTitle">Insight & Solusi Modal Kerja</div>
                 <div id="tcResultText"></div>
                 <br>
-                <div class="tc-result-title">Rekomendasi Produk:</div>
+                <div class="tc-result-title">🎯 Rekomendasi Custom Per Transaksi:</div>
                 <ul class="tc-solution-list" id="tcSolutionList"></ul>
             </div>
         </div>
@@ -426,7 +464,6 @@
             document.getElementById('maint-title').innerText = title;
         }
         
-        // Memastikan update chart berjalan kalau halaman Trade Cycle dibuka
         if(pageId === 'page-trade-cycle') {
             updateChart();
         }
@@ -501,46 +538,70 @@
     }
 
     // --- LOGIC TRADE CYCLE CALCULATOR ---
+    let activeSolutionIds = [];
+
+    const methodOptions = `
+        <option value="AP">AP</option>
+        <option value="Cash">Cash</option>
+        <option value="OA" selected>OA</option>
+        <option value="D/P">D/P</option>
+        <option value="D/A">D/A</option>
+        <option value="Sight LC">Sight LC</option>
+        <option value="Usance LC">Usance LC</option>
+    `;
+
     function addCO() {
+        activeSolutionIds = []; 
         const div = document.createElement('div');
         div.className = 'tc-row co-row';
-        div.innerHTML = `<div class="tc-col"><input type="text" class="co-name" placeholder="Supplier Baru"></div>
-                         <div class="tc-col"><input type="number" class="co-day" placeholder="Hari ke-N" value="0" oninput="updateChart()"></div>
-                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
+        div.innerHTML = `
+            <div class="tc-col-name"><input type="text" class="co-name" placeholder="Nama Supplier"></div>
+            <div class="tc-col-method"><select class="co-method" onchange="updateChart()">${methodOptions}</select></div>
+            <div class="tc-col-day"><input type="number" class="co-day" placeholder="H+N" value="0" oninput="updateChart()"></div>
+            <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
         document.getElementById('coContainer').appendChild(div);
         updateChart();
     }
 
     function addCI() {
+        activeSolutionIds = []; 
         const div = document.createElement('div');
         div.className = 'tc-row ci-row';
-        div.innerHTML = `<div class="tc-col"><input type="text" class="ci-name" placeholder="Buyer Baru"></div>
-                         <div class="tc-col"><input type="number" class="ci-day" placeholder="Hari ke-N" value="0" oninput="updateChart()"></div>
-                         <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
+        div.innerHTML = `
+            <div class="tc-col-name"><input type="text" class="ci-name" placeholder="Nama Buyer"></div>
+            <div class="tc-col-method"><select class="ci-method" onchange="updateChart()">${methodOptions.replace('selected', '')}</select></div>
+            <div class="tc-col-day"><input type="number" class="ci-day" placeholder="H+N" value="0" oninput="updateChart()"></div>
+            <button class="tc-btn-remove" onclick="removeRow(this)">X</button>`;
+        div.querySelector('select').value = "Cash";
         document.getElementById('ciContainer').appendChild(div);
         updateChart();
     }
 
     function removeRow(buttonElement) {
+        activeSolutionIds = []; 
         buttonElement.parentElement.remove();
+        updateChart();
+    }
+
+    function toggleSolution(id) {
+        const idx = activeSolutionIds.indexOf(id);
+        if (idx > -1) {
+            activeSolutionIds.splice(idx, 1); 
+        } else {
+            activeSolutionIds.push(id); 
+        }
         updateChart();
     }
 
     function generateArrowPolygon(xStart, xEnd, y, height) {
         const arrowHeadWidth = 20;
         const adjustedEnd = Math.max(xStart + arrowHeadWidth + 5, xEnd); 
-        return `${xStart},${y} 
-                ${adjustedEnd - arrowHeadWidth},${y} 
-                ${adjustedEnd},${y + height/2} 
-                ${adjustedEnd - arrowHeadWidth},${y + height} 
-                ${xStart},${y + height}`;
+        return `${xStart},${y} ${adjustedEnd - arrowHeadWidth},${y} ${adjustedEnd},${y + height/2} ${adjustedEnd - arrowHeadWidth},${y + height} ${xStart},${y + height}`;
     }
 
     function updateChart() {
-        // Jika elemen Trade Cycle belum ada (saat inisialisasi awal misal), abort.
         if(!document.getElementById('gdDay')) return;
 
-        // 1. Ambil Nilai Input
         const gd = parseInt(document.getElementById('gdDay').value) || 0;
         const gr = Math.max(gd, parseInt(document.getElementById('grDay').value) || 0);
         const pos = Math.max(gr, parseInt(document.getElementById('posDay').value) || 0);
@@ -549,116 +610,218 @@
         const ciDays = Array.from(document.querySelectorAll('.ci-day')).map(el => parseInt(el.value) || 0);
         const coNames = Array.from(document.querySelectorAll('.co-name')).map(el => el.value);
         const ciNames = Array.from(document.querySelectorAll('.ci-name')).map(el => el.value);
+        const coMethods = Array.from(document.querySelectorAll('.co-method')).map(el => el.value);
+        const ciMethods = Array.from(document.querySelectorAll('.ci-method')).map(el => el.value);
 
-        // 2. Kalkulasi Metrik CCC Berdasarkan Rata-rata
         const avgCO = coDays.length > 0 ? (coDays.reduce((a, b) => a + b, 0) / coDays.length) : 0;
         const avgCI = ciDays.length > 0 ? (ciDays.reduce((a, b) => a + b, 0) / ciDays.length) : 0;
 
-        const dio = Math.max(0, pos - gr);
-        const dpo = Math.max(0, avgCO - gr);
-        const dso = Math.max(0, avgCI - pos);
-        const ccc = dio + dso - dpo; // Siklus Konversi Kas
+        const dio = pos - gd; 
+        const dpo = avgCO - gd; 
+        const dso = avgCI - pos;
+        const ccc = dio + dso - dpo; 
 
-        // Update UI Dashboard
         document.getElementById('valDIO').innerHTML = `${Math.round(dio)} <span class="metric-unit">hari</span>`;
         document.getElementById('valDSO').innerHTML = `${Math.round(dso)} <span class="metric-unit">hari</span>`;
         document.getElementById('valDPO').innerHTML = `${Math.round(dpo)} <span class="metric-unit">hari</span>`;
         document.getElementById('valCCC').innerHTML = `${Math.round(ccc)} <span class="metric-unit">hari</span>`;
 
-        // 3. Kalkulasi Dimensi SVG
+        // 3. Setup Dimensi SVG
         let maxDay = Math.max(pos, ...coDays, ...ciDays, 30); 
-        const svgWidth = 800;
-        const startX = 120; 
-        const endX = svgWidth - 120; 
+        const svgWidth = 850; 
+        const startX = 140;   
+        const endX = svgWidth - 140; 
         const usableWidth = endX - startX;
         
-        const rowHeight = 40;
+        const rowHeight = 60; 
         const baseTimelineY = 20; 
-        const coStartY = baseTimelineY + 80; 
+        const coStartY = baseTimelineY + 110; 
         const ciStartY = coStartY + (coDays.length * rowHeight) + 10;
-        const svgHeight = ciStartY + (ciDays.length * rowHeight) + 20;
+        const svgHeight = ciStartY + (ciDays.length * rowHeight) + 30;
 
         function getX(day) { return startX + ((day / maxDay) * usableWidth); }
 
-        // 4. Bangun Elemen SVG
         let svg = `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:auto; font-size:12px;">`;
 
-        const xPO = getX(0), xGR = getX(gr);
-        svg += `<polygon points="${generateArrowPolygon(xPO, xGR - 5, baseTimelineY, 30)}" fill="#f8cbad"/>`;
-        svg += `<text x="${xPO}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">PO/LC</text>`;
-        svg += `<text x="${xPO}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H0</text>`;
-        svg += `<line x1="${xPO}" y1="${baseTimelineY + 20}" x2="${xPO}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
-        
-        const xGD = getX(gd);
-        svg += `<text x="${xGD}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">GD</text>`;
-        svg += `<text x="${xGD}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${gd}</text>`;
-        svg += `<line x1="${xGD}" y1="${baseTimelineY + 20}" x2="${xGD}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+        // Render Panah Trade Cycle Utama
+        const xPO = getX(0), xGD = getX(gd), xGR = getX(gr), xPOS = getX(pos);
+        let currentX = xPO; 
+        if (gd > 0) { svg += `<polygon points="${generateArrowPolygon(currentX, xGD - 3, baseTimelineY, 30)}" fill="var(--peach)"/>`; currentX = xGD + 3; }
+        if (gr > gd) { svg += `<polygon points="${generateArrowPolygon(currentX, xGR - 3, baseTimelineY, 30)}" fill="var(--light-orange)"/>`; currentX = xGR + 3; }
+        if (pos > gr) { svg += `<polygon points="${generateArrowPolygon(currentX, xPOS - 3, baseTimelineY, 30)}" fill="var(--yellow)"/>`; currentX = xPOS + 3; }
+        const endDayX = getX(maxDay);
+        svg += `<polygon points="${generateArrowPolygon(currentX, endDayX, baseTimelineY, 30)}" fill="var(--gold)"/>`;
 
-        svg += `<text x="${xGR}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">GR</text>`;
-        svg += `<text x="${xGR}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${gr}</text>`;
-        svg += `<line x1="${xGR}" y1="${baseTimelineY + 20}" x2="${xGR}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
-
-        const xPOS = getX(pos);
-        svg += `<polygon points="${generateArrowPolygon(xGR + 5, xPOS - 5, baseTimelineY, 30)}" fill="#feeb9d"/>`;
-        svg += `<text x="${xPOS}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">POS</text>`;
-        svg += `<text x="${xPOS}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">H+${pos}</text>`;
-        svg += `<line x1="${xPOS}" y1="${baseTimelineY + 20}" x2="${xPOS}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
-
-        svg += `<polygon points="${generateArrowPolygon(xPOS + 5, Math.min(xPOS + 100, endX + 30), baseTimelineY, 30)}" fill="#fed05b"/>`;
-
-        coDays.forEach((day, index) => {
-            let yPos = coStartY + (index * rowHeight), posX = getX(day);
-            svg += `<line x1="10" y1="${yPos}" x2="${svgWidth-10}" y2="${yPos}" stroke="#ccc" stroke-dasharray="4" stroke-width="1"/>`;
-            svg += `<rect x="10" y="${yPos - 15}" width="100" height="25" fill="#f0f0f0" rx="3"/>
-                    <text x="15" y="${yPos}" font-size="11px">CO${index+1} : ${coNames[index].substring(0,8)}</text>`;
-            svg += `<line x1="110" y1="${yPos}" x2="${posX}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>
-                    <circle cx="${posX}" cy="${yPos}" r="4" fill="#e57373"/>
-                    <text x="${posX}" y="${yPos - 8}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#e57373">H+${day}</text>`;
+        const timelineEvents = [{name:'PO/LC', day:0}, {name:'GD', day:gd}, {name:'GR', day:gr}, {name:'POS', day:pos}];
+        const groupedEvents = {};
+        timelineEvents.forEach(evt => {
+            if (!groupedEvents[evt.day]) groupedEvents[evt.day] = [];
+            groupedEvents[evt.day].push(evt.name);
         });
 
+        for (let day in groupedEvents) {
+            let x = getX(Number(day));
+            let label = groupedEvents[day].join(' & ');
+            svg += `<text x="${x}" y="${baseTimelineY + 45}" font-weight="bold" font-size="11px" text-anchor="middle">${label}</text>`;
+            svg += `<text x="${x}" y="${baseTimelineY + 60}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#666">${day == 0 ? 'H0' : 'H+'+day}</text>`;
+            svg += `<line x1="${x}" y1="${baseTimelineY + 20}" x2="${x}" y2="${baseTimelineY + 30}" stroke="#000" stroke-width="1"/>`;
+        }
+
+        // Inisialisasi Box Hasil Insight
+        const resultBox = document.getElementById('tcResultBox');
+        const resultText = document.getElementById('tcResultText');
+        let solutionListHtml = '';
+
+        if (ccc > 0) {
+            resultBox.className = 'tc-result-box deficit';
+            resultText.innerHTML = `Siklus Kas (Rata-rata) mengalami <strong>Defisit ${Math.round(ccc)} hari</strong>.`;
+        } else {
+            resultBox.className = 'tc-result-box';
+            resultText.innerHTML = `Siklus Kas (Rata-rata) mengalami <strong>Surplus ${Math.abs(Math.round(ccc))} hari</strong>.`;
+        }
+
+        // ==========================================
+        // RENDER CASH OUTFLOW (CO) & SOLUSI
+        // ==========================================
+        coDays.forEach((day, index) => {
+            let yPos = coStartY + (index * rowHeight), posX = getX(day);
+            let name = coNames[index] || `Supplier ${index+1}`;
+            let method = coMethods[index];
+            let gap = pos - day; 
+            let solId = `CO_${index}`;
+            let isInserted = activeSolutionIds.includes(solId);
+
+            // Garis Latar Putus-Putus
+            svg += `<line x1="10" y1="${yPos}" x2="${svgWidth-10}" y2="${yPos}" stroke="#ccc" stroke-dasharray="4" stroke-width="1"/>`;
+
+            let solution = "", shortSol = "", shortSol2 = "";
+            let btnText = isInserted ? "× Hapus" : "+ Insert";
+            let btnClass = isInserted ? "tc-btn-insert active" : "tc-btn-insert";
+            let btnHtml = `<button class="${btnClass}" onclick="toggleSolution('${solId}')">${btnText}</button>`;
+
+            // LOGIKA STRUCTURED LC
+            if (method === "Sight LC" || method === "Usance LC") {
+                if (gap > 0) {
+                    shortSol = "NCL"; shortSol2 = "TR";
+                    solutionListHtml += `<li><span class="advisory-badge badge-co">CO${index+1} - ${method}</span> <strong>Structured LC:</strong> <strong>NCL (LC Issuance)</strong> dari H0 s.d H+${day}, dilanjutkan <strong>Trust Receipt (TR)</strong> selama ${gap} hari (H+${day} s.d POS H+${pos}). ${btnHtml}</li>`;
+                } else {
+                    shortSol = "NCL";
+                    solutionListHtml += `<li><span class="advisory-badge badge-co">CO${index+1} - ${method}</span> <strong>NCL (LC Issuance):</strong> Fasilitas penerbitan LC dari H0 s.d H+${day}. <span style="color:#666;">(Aman: Tidak butuh TR karena barang laku lebih dulu di H+${pos}).</span> ${btnHtml}</li>`;
+                }
+                
+                if (isInserted) {
+                    let xS1 = getX(0), xE1 = getX(day), w1 = Math.max(xE1 - xS1, 0);
+                    if (w1 > 0) {
+                        svg += `<rect x="${xS1}" y="${yPos - 28}" width="${w1}" height="22" fill="#cfd8dc" stroke="#6c757d" stroke-width="1" rx="3"/>`;
+                        svg += `<text x="${xS1 + w1/2}" y="${yPos - 13}" font-size="9px" text-anchor="middle" font-weight="bold" fill="#333">${shortSol}</text>`;
+                    }
+                    if (gap > 0) {
+                        let xS2 = getX(day), xE2 = getX(pos), w2 = Math.max(xE2 - xS2, 0);
+                        if (w2 > 0) {
+                            svg += `<rect x="${xS2}" y="${yPos - 28}" width="${w2}" height="22" fill="#cfd8dc" stroke="#6c757d" stroke-width="1" rx="3"/>`;
+                            svg += `<text x="${xS2 + w2/2}" y="${yPos - 13}" font-size="9px" text-anchor="middle" font-weight="bold" fill="#333">${shortSol2}</text>`;
+                        }
+                    }
+                }
+            } 
+            // LOGIKA NON-LC
+            else {
+                if (gap > 0) {
+                    if (method === "AP" || method === "Cash") { solution = "AP Financing"; shortSol = "AP FIN"; }
+                    else if (method === "OA") { solution = "Deferred Payment"; shortSol = "DEF. PAY"; }
+                    else if (method === "D/P" || method === "D/A") { solution = "Avalization"; shortSol = "AVAL"; }
+
+                    solutionListHtml += `<li><span class="advisory-badge badge-co">CO${index+1} - ${method}</span> <strong>${solution}:</strong> Pembiayaan ke <strong>${name}</strong> selama ${gap} hari (H+${day} s.d POS H+${pos}). ${btnHtml}</li>`;
+                    
+                    if (isInserted) {
+                        let xStart = getX(day), xEnd = getX(pos), width = Math.max(xEnd - xStart, 0);
+                        svg += `<rect x="${xStart}" y="${yPos - 28}" width="${width}" height="22" fill="#cfd8dc" stroke="#6c757d" stroke-width="1" rx="3"/>`;
+                        svg += `<text x="${xStart + width/2}" y="${yPos - 13}" font-size="9px" text-anchor="middle" font-weight="bold" fill="#333">${shortSol}</text>`;
+                    }
+                } else {
+                    solutionListHtml += `<li><span class="advisory-badge badge-skip">CO${index+1} - ${method}</span> <span style="color:#666;"><strong>Aman (No Financing):</strong> Kewajiban bayar ke <strong>${name}</strong> terjadi saat/setelah barang laku terjual.</span></li>`;
+                }
+            }
+
+            // Elemen Label Kiri
+            svg += `<rect x="10" y="${yPos - 15}" width="120" height="25" fill="#f0f0f0" rx="3"/>
+                    <text x="15" y="${yPos}" font-size="11px">CO${index+1}: ${name.substring(0,6)} [${method}]</text>`;
+            svg += `<line x1="130" y1="${yPos}" x2="${posX}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>`;
+
+            // Node Titik dan Indikator Hari (Dipindah ke bawah garis yPos + 14)
+            svg += `<circle cx="${posX}" cy="${yPos}" r="4" fill="#e57373"/>
+                    <text x="${posX}" y="${yPos + 14}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#e57373">H+${day}</text>`;
+        });
+
+        // ==========================================
+        // RENDER CASH INFLOW (CI) & SOLUSI
+        // ==========================================
         ciDays.forEach((day, index) => {
             let yPos = ciStartY + (index * rowHeight), posX = getX(day);
+            let name = ciNames[index] || `Buyer ${index+1}`;
+            let method = ciMethods[index];
+            let gap = day - pos;
+            let poToGd = gd - 0;
+            let solId = `CI_${index}`;
+            let isInserted = activeSolutionIds.includes(solId);
+
+            // Garis Latar Putus-Putus
             svg += `<line x1="10" y1="${yPos}" x2="${svgWidth-10}" y2="${yPos}" stroke="#ccc" stroke-dasharray="4" stroke-width="1"/>`;
-            svg += `<rect x="${svgWidth - 110}" y="${yPos - 15}" width="100" height="25" fill="#e0e0e0" rx="3"/>
-                    <text x="${svgWidth - 105}" y="${yPos}" font-size="11px">CI${index+1} : ${ciNames[index].substring(0,8)}</text>`;
-            svg += `<line x1="${posX}" y1="${yPos}" x2="${svgWidth - 110}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>
-                    <circle cx="${posX}" cy="${yPos}" r="4" fill="#64b5f6"/>
-                    <text x="${posX}" y="${yPos - 8}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#1976d2">H+${day}</text>`;
+
+            let shortSol1 = "", shortSol2 = "";
+
+            if (method === "AP" || method === "Cash") {
+                solutionListHtml += `<li><span class="advisory-badge badge-ok">CI${index+1} - ${method}</span> <span style="color:#28a745;"><strong>Aman (Virtual Account):</strong> Dana tunai diterima di muka, tidak butuh pembiayaan.</span></li>`;
+            } else {
+                if (gap > 0) {
+                    let btnText = isInserted ? "× Hapus" : "+ Insert";
+                    let btnClass = isInserted ? "tc-btn-insert active" : "tc-btn-insert";
+                    let btnHtml = `<button class="${btnClass}" onclick="toggleSolution('${solId}')">${btnText}</button>`;
+
+                    if (method === "OA") {
+                        shortSol2 = "INV FIN";
+                        solutionListHtml += `<li><span class="advisory-badge badge-ci">CI${index+1} - ${method}</span> <strong>Invoice Financing:</strong> Cairkan tagihan <strong>${name}</strong> lebih awal selama ${gap} hari. ${btnHtml}</li>`;
+                    }
+                    else if (method === "D/P" || method === "D/A") {
+                        shortSol2 = "PWE";
+                        solutionListHtml += `<li><span class="advisory-badge badge-ci">CI${index+1} - ${method}</span> <strong>PWE:</strong> Diskonto dokumen tagihan <strong>${name}</strong> selama ${gap} hari. ${btnHtml}</li>`;
+                    }
+                    else if (method === "Sight LC" || method === "Usance LC") {
+                        shortSol2 = "BPL";
+                        solutionListHtml += `<li><span class="advisory-badge badge-ci">CI${index+1} - ${method}</span> <strong>BPL (Bill Purchase):</strong> Negosiasi wesel ekspor <strong>${name}</strong> selama ${gap} hari. ${btnHtml}</li>`;
+                    }
+
+                    if (isInserted) {
+                        let xS2 = getX(pos), xE2 = getX(day), w2 = Math.max(xE2 - xS2, 0);
+                        svg += `<rect x="${xS2}" y="${yPos - 28}" width="${w2}" height="22" fill="#cfd8dc" stroke="#6c757d" stroke-width="1" rx="3"/>`;
+                        svg += `<text x="${xS2 + w2/2}" y="${yPos - 13}" font-size="9px" text-anchor="middle" font-weight="bold" fill="#333">${shortSol2}</text>`;
+                    }
+                } else {
+                    solutionListHtml += `<li><span class="advisory-badge badge-skip">CI${index+1} - ${method}</span> <span style="color:#666;"><strong>Aman (No Financing):</strong> Piutang cair di H+${day}, mendahului penjualan (H+${pos}).</span></li>`;
+                }
+            }
+
+            // Elemen Label Kanan
+            svg += `<rect x="${svgWidth - 130}" y="${yPos - 15}" width="120" height="25" fill="#e0e0e0" rx="3"/>
+                    <text x="${svgWidth - 125}" y="${yPos}" font-size="11px">CI${index+1}: ${name.substring(0,6)} [${method}]</text>`;
+            svg += `<line x1="${posX}" y1="${yPos}" x2="${svgWidth - 130}" y2="${yPos}" stroke="#666" stroke-width="1.5"/>`;
+
+            // Node Titik dan Indikator Hari (Dipindah ke bawah garis yPos + 14)
+            svg += `<circle cx="${posX}" cy="${yPos}" r="4" fill="#64b5f6"/>
+                    <text x="${posX}" y="${yPos + 14}" font-weight="bold" font-size="11px" text-anchor="middle" fill="#1976d2">H+${day}</text>`;
         });
 
         svg += `</svg>`;
         document.getElementById('svgContainer').innerHTML = svg;
-
-        // 5. Kesimpulan Berdasarkan CCC
-        const resultBox = document.getElementById('tcResultBox');
-        const resultText = document.getElementById('tcResultText');
-        const solutionList = document.getElementById('tcSolutionList');
-        solutionList.innerHTML = '';
-
-        if (ccc > 0) {
-            resultBox.className = 'tc-result-box deficit';
-            resultText.innerHTML = `<strong>Terjadi Gap Likuiditas (Defisit) selama ${Math.round(ccc)} hari.</strong><br>
-                                    Secara rata-rata, nasabah menutupi siklus modal kerja menggunakan dana sendiri atau pinjaman.`;
-            solutionList.innerHTML += `<li><strong>Post-Shipment Financing / Trust Receipt:</strong> Untuk menalangi tagihan supplier sambil menunggu kas masuk.</li>`;
-            solutionList.innerHTML += `<li><strong>Invoice Discounting:</strong> Opsi pencairan piutang buyer lebih awal jika termin CI terlalu panjang.</li>`;
-        } else if (ccc < 0) {
-            resultBox.className = 'tc-result-box';
-            resultText.innerHTML = `<strong>Siklus Kas Positif (Surplus) selama ${Math.abs(Math.round(ccc))} hari.</strong><br>
-                                    Secara rata-rata, nasabah menerima kas lebih cepat sebelum kewajiban bayar jatuh tempo.`;
-            solutionList.innerHTML += `<li><strong>Supply Chain Financing (Reverse Factoring):</strong> Tawarkan percepatan bayar kepada supplier untuk mengamankan rantai pasok.</li>`;
-            solutionList.innerHTML += `<li><strong>Virtual Account Payment:</strong> Solusi penagihan masif terintegrasi untuk mempercepat rekonsiliasi kas masuk.</li>`;
-            solutionList.innerHTML += `<li><strong>Liquidity Management:</strong> Penempatan surplus dana jangka pendek selama siklus kas mengendap.</li>`;
-        } else {
-            resultBox.className = 'tc-result-box';
-            resultText.innerHTML = `<strong>Siklus Kas Seimbang (0 Hari).</strong><br>
-                                    Waktu kas keluar rata-rata sama dengan waktu kas masuk.`;
-            solutionList.innerHTML += `<li><strong>Cash Management:</strong> Optimalisasi operasional untuk menjaga kestabilan likuiditas.</li>`;
-        }
+        
+        document.getElementById('tcSolutionList').innerHTML = solutionListHtml;
+        resultBox.style.display = 'block';
     }
 
-    // Inisialisasi chart saat pertama buka web
     window.onload = function() {
-        updateChart();
+        if(document.getElementById('gdDay')){
+            updateChart();
+        }
     };
 </script>
 
